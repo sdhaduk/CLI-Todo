@@ -3,6 +3,8 @@ package todo
 import (
 	"strings"
 	"fmt"
+	"unicode/utf8"
+	"errors"
 )
 
 type Task struct {
@@ -10,6 +12,8 @@ type Task struct {
 	Name      string `json:"name"`
 	Completed bool   `json:"completed"`
 }
+
+var InvalidName = errors.New("Invalid task name")
 
 func List() (string, error) {
 	tasks, err := readFromFile(filePath)
@@ -34,12 +38,16 @@ func List() (string, error) {
 }
 
 func Add(name string) error {
+	var id int
+
+	if !utf8.ValidString(name) {
+		return InvalidName
+	}
+	
 	tasks, err := readFromFile(filePath)
 	if err != nil {
 		return err
 	}
-	
-	var id int
 	
 	if len(tasks) == 0 {
 		id = 1
@@ -62,4 +70,48 @@ func Add(name string) error {
 	}
 	return nil
 }
+
+func Delete(id int) error {
+	tasks, err := readFromFile(filePath)
+	if err != nil {
+		return err
+	}
+	newTasks := []Task{}
+
+	for _, task := range tasks {
+		if task.Id != id {
+			newTasks = append(newTasks, task)
+		}
+	}
+
+	err = saveToFile(filePath, newTasks)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Complete(id int) error {
+	tasks, err := readFromFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	for index, task := range tasks {
+		if task.Id == id {
+			tasks[index].Completed = true
+		}
+	}
+
+	err = saveToFile(filePath, tasks)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Clear() error {
+	return clearFile(filePath)
+}
+
 

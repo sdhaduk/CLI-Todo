@@ -70,3 +70,8 @@ func saveToFile(filePath string, tasks []Task) error {
 	}
 	return nil
 }
+
+func clearFile(filePath string) error {	
+	empty := []Task{}
+	return saveToFile(filePath, empty)
+}
