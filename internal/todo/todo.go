@@ -1,10 +1,10 @@
-package todo 
+package todo
 
 import (
-	"strings"
-	"fmt"
-	"unicode/utf8"
 	"errors"
+	"fmt"
+	"strings"
+	"unicode/utf8"
 )
 
 type Task struct {
@@ -39,6 +39,10 @@ func List() (string, error) {
 
 func Add(name string) error {
 	var id int
+
+	if len(name) == 0 {
+		return InvalidName
+	}
 
 	if !utf8.ValidString(name) {
 		return InvalidName
@@ -113,5 +117,3 @@ func Complete(id int) error {
 func Clear() error {
 	return clearFile(filePath)
 }
-
-
